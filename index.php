@@ -98,7 +98,7 @@ map.on('load', () => {
       map.fitBounds(bounds, { padding: 40 });
     }
   });
-});
+}); 
 </script>
 </body>
 </html>
