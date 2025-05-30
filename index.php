@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Interactive Rajasthan to Jaisalmer to Pokhran</title>
+  <title>Rajasthan Marker and Sites</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
@@ -14,15 +14,16 @@
 </head>
 <body>
 <div id="map"></div>
+
 <script>
-mapboxgl.accessToken = 'pk.eyJ1IjoiY3lyb3Zlcml0cmVlIiwiYSI6ImNrc3o4ZWhsNTJyNXMydnA3NWhzbTlmeHAifQ.UFGmxyhFZRSci4SGxpIaqQ'; // Replace this
+mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // Replace this
 
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/streets-v12',
-  center: [78.9629, 22.5937], // India center
+  center: [78.9629, 22.5937],
   zoom: 4,
-  maxBounds: [[68.0, 6.0], [98.0, 37.0]] // Lock to India
+  maxBounds: [[68.0, 6.0], [98.0, 37.0]]
 });
 
 // Simplified Rajasthan Polygon
@@ -37,8 +38,8 @@ const rajasthanPolygon = {
   }
 };
 
-// Rajasthan main cities
-const rajasthanCities = [
+// Main Rajasthan cities (sites)
+const rajasthanSites = [
   { name: "Jaipur", coordinates: [75.7873, 26.9124] },
   { name: "Jodhpur", coordinates: [73.0243, 26.2389] },
   { name: "Bikaner", coordinates: [73.3119, 28.0229] },
@@ -46,59 +47,46 @@ const rajasthanCities = [
   { name: "Jaisalmer", coordinates: [70.9083, 26.9157] }
 ];
 
-// Jaisalmer nearby places
-const jaisalmerNearby = [
-  { name: "Pokhran", coordinates: [71.916, 27.095] }
-];
+let rajasthanMarker = null;
+let siteMarkers = [];
 
-let cityMarkers = [];
-let nearbyMarkers = [];
-
+// On map load
 map.on('load', () => {
-  // Listen for map clicks
   map.on('click', (e) => {
-    const point = turf.point([e.lngLat.lng, e.lngLat.lat]);
-    const inside = turf.booleanPointInPolygon(point, rajasthanPolygon);
+    const clickedPoint = turf.point([e.lngLat.lng, e.lngLat.lat]);
+    const inside = turf.booleanPointInPolygon(clickedPoint, rajasthanPolygon);
 
     if (inside) {
-      // Remove existing city and nearby markers
-      cityMarkers.forEach(m => m.remove());
-      cityMarkers = [];
+      // Remove existing Rajasthan marker
+      if (rajasthanMarker) rajasthanMarker.remove();
+      siteMarkers.forEach(marker => marker.remove());
+      siteMarkers = [];
 
-      // Add markers for major cities
-      rajasthanCities.forEach(city => {
-        const marker = new mapboxgl.Marker()
-          .setLngLat(city.coordinates)
-          .setPopup(new mapboxgl.Popup().setText(city.name))
-          .addTo(map);
-        
-        marker.getElement().addEventListener('click', () => {
-          if (city.name === "Jaisalmer") {
-            // Remove old nearby markers
-            nearbyMarkers.forEach(m => m.remove());
-            nearbyMarkers = [];
+      // Add central Rajasthan marker (you can adjust the coordinates)
+      const centerOfRajasthan = [73.9, 27.0];
+      rajasthanMarker = new mapboxgl.Marker({ color: 'red' })
+        .setLngLat(centerOfRajasthan)
+        .setPopup(new mapboxgl.Popup().setText("Click to show Rajasthan sites"))
+        .addTo(map);
 
-            // Add Pokhran
-            jaisalmerNearby.forEach(place => {
-              const nearbyMarker = new mapboxgl.Marker({ color: 'red' })
-                .setLngLat(place.coordinates)
-                .setPopup(new mapboxgl.Popup().setText(place.name))
-                .addTo(map);
-              nearbyMarkers.push(nearbyMarker);
-            });
-          }
+      rajasthanMarker.getElement().addEventListener('click', () => {
+        // Add city/site markers
+        rajasthanSites.forEach(site => {
+          const marker = new mapboxgl.Marker()
+            .setLngLat(site.coordinates)
+            .setPopup(new mapboxgl.Popup().setText(site.name))
+            .addTo(map);
+          siteMarkers.push(marker);
         });
-
-        cityMarkers.push(marker);
       });
 
-      // Zoom into Rajasthan
+      // Fit map to Rajasthan polygon
       const coords = rajasthanPolygon.geometry.coordinates[0];
       const bounds = coords.reduce((b, coord) => b.extend(coord), new mapboxgl.LngLatBounds(coords[0], coords[0]));
       map.fitBounds(bounds, { padding: 40 });
     }
   });
-}); 
+});
 </script>
 </body>
 </html>
