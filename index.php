@@ -16,7 +16,7 @@
 <div id="map"></div>
 
 <script>
-mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // Replace this
+mapboxgl.accessToken = 'pk.eyJ1IjoiY3lyb3Zlcml0cmVlIiwiYSI6ImNrc3o4ZWhsNTJyNXMydnA3NWhzbTlmeHAifQ.UFGmxyhFZRSci4SGxpIaqQ'; // Replace this
 
 const map = new mapboxgl.Map({
   container: 'map',
